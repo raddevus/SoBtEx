@@ -133,8 +133,6 @@ class FirstFragment : Fragment() {
             } catch (ex: IOException) {
             }
         })
-
-        myLabel!!.text = "\nsuper\nmight work\nhopefully"
     }
 
     fun findBT() {
