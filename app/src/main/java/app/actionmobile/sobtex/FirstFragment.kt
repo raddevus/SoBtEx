@@ -134,7 +134,7 @@ class FirstFragment : Fragment() {
             }
         })
 
-
+        myLabel!!.text = "\nsuper\nmight work\nhopefully"
     }
 
     fun findBT() {
@@ -175,7 +175,8 @@ class FirstFragment : Fragment() {
 
     fun beginListenForData() {
         //val handler : Handler//= Handler()
-        val delimiter: Byte = 10 //This is the ASCII code for a newline character
+        // Changed following line from 10 (/n newline) to CR (13) to
+        val delimiter: Byte = 13 //This is the ASCII code for a newline character
         stopWorker = false
         readBufferPosition = 0
         readBuffer = ByteArray(1024)
@@ -260,3 +261,4 @@ class FirstFragment : Fragment() {
         _binding = null
     }
 }
+
