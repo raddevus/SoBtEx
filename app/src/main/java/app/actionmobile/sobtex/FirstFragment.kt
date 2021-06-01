@@ -12,9 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import app.actionmobile.sobtex.databinding.FragmentFirstBinding
 import java.io.IOException
@@ -46,6 +44,13 @@ class FirstFragment : Fragment() {
     var readBufferPosition = 0
     var counter = 0
 
+    private var btDeviceSpinner: Spinner? = null
+    private var adapter: ArrayAdapter<String>? = null
+    var listViewItems = ArrayList<String>()
+    lateinit var btCurrentDeviceName : String
+    lateinit var pairedDevices: Set<BluetoothDevice>
+    lateinit var btAdapter: BluetoothAdapter
+
     @Volatile
     var stopWorker = false
 
@@ -68,6 +73,35 @@ class FirstFragment : Fragment() {
         val closeButton: Button = view.findViewById(R.id.close) as Button
         myLabel = view.findViewById(R.id.label) as TextView
         myTextbox = view.findViewById(R.id.entry) as EditText
+
+        adapter =
+            activity?.let { ArrayAdapter<String>(it, R.layout.support_simple_spinner_dropdown_item, listViewItems) }
+        btDeviceSpinner = view.findViewById(R.id.btDeviceSpinner) as Spinner
+        btDeviceSpinner?.adapter = adapter
+
+        btAdapter = BluetoothAdapter.getDefaultAdapter()
+        pairedDevices = GetPairedDevices(btAdapter)
+        if (pairedDevices.count() <= 0){
+            // just in case user is running in emulator, they will see two items in list
+            adapter?.add("first");
+            adapter?.add("second");
+            adapter?.notifyDataSetChanged()
+        }
+
+        btDeviceSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                btCurrentDeviceName = btDeviceSpinner?.getSelectedItem().toString();
+                //saveDeviceNamePref();
+                Log.d("FirstFrag", "DeviceInfo : " + btCurrentDeviceName);
+                //logViewAdapter.add("DeviceInfo : " + btCurrentDeviceName);
+                //logViewAdapter.notifyDataSetChanged();
+
+            }
+        }
 
         //Open Button
 
@@ -99,6 +133,8 @@ class FirstFragment : Fragment() {
             } catch (ex: IOException) {
             }
         })
+
+
     }
 
     fun findBT() {
@@ -113,7 +149,7 @@ class FirstFragment : Fragment() {
         val pairedDevices = mBluetoothAdapter?.getBondedDevices()
         if (pairedDevices?.size?.compareTo(0)  != 0) {
             for (device in pairedDevices!!) {
-                if (device.name == "RADBluex") {
+                if (device.name == btCurrentDeviceName) {
                     mmDevice = device
                     break
                 }
@@ -132,7 +168,7 @@ class FirstFragment : Fragment() {
         mmInputStream = mmSocket?.getInputStream()
         beginListenForData()
         myLabel!!.text = "Bluetooth Opened"
-
+        // UUID strings can be upper or lowercase (they are equivalent)
         // 00001101-0000-1000-8000-00805f9b34fb
         // 00001101-0000-1000-8000-00805F9B34FB
     }
@@ -199,6 +235,24 @@ class FirstFragment : Fragment() {
         mmInputStream?.close()
         mmSocket!!.close()
         myLabel!!.text = "Bluetooth Closed"
+    }
+
+    private fun GetPairedDevices(btAdapter: BluetoothAdapter): MutableSet<BluetoothDevice> {
+        val pairedDevices = btAdapter?.bondedDevices
+        // If there are paired devices
+        Log.i("FirstFrag", "checking paired devices")
+        if (pairedDevices != null) {
+            Log.i("FirstFrag", "pairedDevices NOT null")
+            if (pairedDevices.size > 0) {
+                Log.i("FirstFrag", pairedDevices.size.toString())
+                for (device in pairedDevices) {
+                    // Add the name and address to an array adapter to show in a ListView
+                    adapter!!.add(device.name) // + "\n" + device.getAddress());
+                }
+                adapter!!.notifyDataSetChanged()
+            }
+        }
+        return pairedDevices
     }
 
     override fun onDestroyView() {

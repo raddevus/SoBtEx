@@ -9,37 +9,41 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView" />
-<EditText
-android:id="@+id/entry"
-android:layout_width="fill_parent"
-android:layout_height="wrap_content"
-android:layout_below="@id/label"
-android:background="@android:drawable/editbox_background" />
+    <Spinner
+        android:id="@+id/btDeviceSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/label"/>
+    <EditText
+    android:id="@+id/entry"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/btDeviceSpinner"
+    android:background="@android:drawable/editbox_background" />
 
-<Button
-android:id="@+id/open"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:layout_alignParentRight="true"
-android:layout_below="@id/entry"
-android:layout_marginLeft="10dip"
-android:text="Open" />
+    <Button
+    android:id="@+id/open"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_below="@id/entry"
+    android:layout_marginLeft="10dip"
+    android:text="Open" />
 
-<Button
-android:id="@+id/send"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:layout_alignTop="@id/open"
-android:layout_toLeftOf="@id/open"
-android:text="Send" />
+    <Button
+    android:id="@+id/send"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignTop="@id/open"
+    android:layout_toLeftOf="@id/open"
+    android:text="Send" />
 
-<Button
-android:id="@+id/close"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:layout_alignTop="@id/send"
-android:layout_toLeftOf="@id/send"
-android:text="Close" />
-
+    <Button
+    android:id="@+id/close"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignTop="@id/send"
+    android:layout_toLeftOf="@id/send"
+    android:text="Close" />
 
 </RelativeLayout>
