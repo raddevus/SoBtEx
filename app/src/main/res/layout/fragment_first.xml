@@ -47,4 +47,21 @@
     android:layout_toLeftOf="@id/send"
     android:text="Close" />
 
+    <Button
+        android:id="@+id/getFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/send"
+        android:layout_alignTop="@id/fileName"
+        android:text="Get File" />
+
+    <EditText
+        android:id="@+id/fileName"
+        android:layout_width="wrap_content"
+        android:layout_toLeftOf="@id/fileName"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/close"
+        android:ems="10"
+        android:text="temps.txt" />
+
 </RelativeLayout>

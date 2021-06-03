@@ -5,19 +5,17 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Intent
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getExternalFilesDirs
 import androidx.fragment.app.Fragment
 import app.actionmobile.sobtex.databinding.FragmentFirstBinding
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 import java.util.*
 
 
@@ -34,6 +32,7 @@ class FirstFragment : Fragment() {
 
     var myLabel: TextView? = null
     var myTextbox: EditText? = null
+    lateinit var fileNameEdit : EditText
     var mBluetoothAdapter: BluetoothAdapter? = null
     var mmSocket: BluetoothSocket? = null
     var mmDevice: BluetoothDevice? = null
@@ -50,6 +49,8 @@ class FirstFragment : Fragment() {
     lateinit var btCurrentDeviceName : String
     lateinit var pairedDevices: Set<BluetoothDevice>
     lateinit var btAdapter: BluetoothAdapter
+    var isRetrievingFile : Boolean = false;
+    lateinit var outputFileName : String
 
     @Volatile
     var stopWorker = false
@@ -71,8 +72,12 @@ class FirstFragment : Fragment() {
         val openButton: Button = view.findViewById(R.id.open) as Button
         val sendButton: Button = view.findViewById(R.id.send) as Button
         val closeButton: Button = view.findViewById(R.id.close) as Button
+        val getFileButton: Button = view.findViewById(R.id.getFile) as Button
+
         myLabel = view.findViewById(R.id.label) as TextView
         myTextbox = view.findViewById(R.id.entry) as EditText
+        fileNameEdit = view.findViewById(R.id.fileName) as EditText
+
 
         adapter =
             activity?.let { ArrayAdapter<String>(it, R.layout.support_simple_spinner_dropdown_item, listViewItems) }
@@ -103,8 +108,23 @@ class FirstFragment : Fragment() {
             }
         }
 
-        //Open Button
+        getFileButton.setOnClickListener(View.OnClickListener {
+            try {
+                if (fileNameEdit.text.toString() != ""){
+                    outputFileName = fileNameEdit.text.toString();
+                    isRetrievingFile = true;
+                    sendData()
+                }
+                else{
+                    var errMsg : String = "Please provide a file name to save your data to.\n"
+                    errMsg += "Examples => temperature.txt, sampledata.txt, sample.log"
+                    Log.i("FirstFrag",errMsg)
+                    myLabel?.text = errMsg
+                }
 
+            } catch (ex: IOException) {
+            }
+        })
         //Open Button
         openButton.setOnClickListener(View.OnClickListener {
             try {
@@ -201,9 +221,17 @@ class FirstFragment : Fragment() {
                                 )
                                 val data = encodedBytes.toString(Charsets.US_ASCII)//  String(encodedBytes, "US-ASCII")
                                 readBufferPosition = 0
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    myLabel!!.text = data
-                                }, 10)
+                                if (isRetrievingFile) {
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        var msg = writeFileExternalStorage(encodedBytes)
+                                        myLabel?.text = msg
+                                    }, 10)
+                                }
+                                else{
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        myLabel!!.text = data
+                                    }, 10)
+                                }
                                 //handler.post( {  })
                                 Log.i("FirstFrag", data)
                             } else {
@@ -217,6 +245,49 @@ class FirstFragment : Fragment() {
             }
         }
         workerThread!!.start()
+    }
+
+    fun writeFileExternalStorage(encodedBytes: ByteArray) :String {
+
+        //Text of the Document
+
+        Log.i("FirstFrag", "in writeFileExternalStorage")
+        //Checking the availability state of the External Storage.
+        val state = Environment.getExternalStorageState()
+        if (Environment.MEDIA_MOUNTED != state) {
+
+            Log.i("FirstFrag", "Couldn't get file system.")
+            return "Couldn't write file."
+        }
+
+        //Create a new file that points to the root directory, with the given name:
+        //var allDirs  = getExternalFilesDirs()
+
+        var file =File(requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), outputFileName)
+
+        Log.i("FirstFrag", file.absolutePath)
+        //This point and below is responsible for the write operation
+        var outputStream: FileOutputStream? = null
+        try {
+            Log.i("FirstFrag", "creating new file")
+            file.createNewFile()
+            Log.i("FirstFrag", "file created")
+            //second argument of FileOutputStream constructor indicates whether
+            //to append or create new file if one exists
+            outputStream = FileOutputStream(file, true)
+            outputStream?.write(encodedBytes)
+            outputStream?.flush()
+            outputStream?.close()
+            Log.i("FirstFrag", "wrote file!")
+            return file.absolutePath
+        } catch (e: Exception) {
+            Log.i("FirstFrag",e.message.toString())
+            return e.message.toString() + "\nPlease check that you have a valid filename."
+        }
+        finally {
+            isRetrievingFile = false;
+        }
+        //return file.absolutePath
     }
 
     @Throws(IOException::class)
