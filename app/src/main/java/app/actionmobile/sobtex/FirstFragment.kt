@@ -247,8 +247,8 @@ class FirstFragment : Fragment() {
 
     fun writeFileExternalStorage(encodedBytes: ByteArray) :String {
 
-        //Text of the Document
-
+        var fileData : String = "test this"
+        fileData.toByteArray()
         Log.i("FirstFrag", "in writeFileExternalStorage")
         //Checking the availability state of the External Storage.
         val state = Environment.getExternalStorageState()
@@ -257,9 +257,6 @@ class FirstFragment : Fragment() {
             Log.i("FirstFrag", "Couldn't get file system.")
             return "Couldn't write file."
         }
-
-        //Create a new file that points to the root directory, with the given name:
-        //var allDirs  = getExternalFilesDirs()
 
         var file =File(requireContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), outputFileName)
 
@@ -285,7 +282,6 @@ class FirstFragment : Fragment() {
         finally {
             isRetrievingFile = false;
         }
-        //return file.absolutePath
     }
 
     @Throws(IOException::class)
