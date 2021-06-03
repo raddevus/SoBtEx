@@ -11,8 +11,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getExternalFilesDirs
 import androidx.fragment.app.Fragment
 import app.actionmobile.sobtex.databinding.FragmentFirstBinding
 import java.io.*
