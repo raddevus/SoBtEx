@@ -121,6 +121,7 @@ class FirstFragment : Fragment() {
                 }
 
             } catch (ex: IOException) {
+                Log.i("FirstFrag", ex.message.toString())
             }
         })
         //Open Button
@@ -193,9 +194,13 @@ class FirstFragment : Fragment() {
         //val handler : Handler//= Handler()
         // Changed following line from 10 (/n newline) to CR (13) to
         val delimiter: Byte = 13 //This is the ASCII code for a newline character
+
         stopWorker = false
         readBufferPosition = 0
-        readBuffer = ByteArray(1024)
+            // only need read buffer to be larger if you're retrieving a file
+        readBuffer = ByteArray(50000)
+        //readBuffer = ByteArray(1024)
+
         workerThread = Thread {
             while (!Thread.currentThread().isInterrupted && !stopWorker) {
                 try {
@@ -204,10 +209,10 @@ class FirstFragment : Fragment() {
                         Log.i("FirstFrag", "bytesAvail : " + bytesAvailable.toString())
                         val packetBytes = ByteArray(bytesAvailable)
                         mmInputStream?.read(packetBytes)
-                        Log.i("FirstFrag", packetBytes.toString())
+
                         for (i in 0 until bytesAvailable) {
                             val b = packetBytes[i]
-                            Log.i("FirstFrag", "b :" + b.toString())
+                            //Log.i("FirstFrag", "b :" + b.toString())
                             if (b == delimiter) {
                                 val encodedBytes = ByteArray(readBufferPosition)
                                 System.arraycopy(
@@ -221,6 +226,7 @@ class FirstFragment : Fragment() {
                                 readBufferPosition = 0
                                 if (isRetrievingFile) {
                                     Handler(Looper.getMainLooper()).postDelayed({
+                                        Log.i("FirstFrag", "Calling writeFile...")
                                         var msg = writeFileExternalStorage(encodedBytes)
                                         myLabel?.text = msg
                                     }, 10)
@@ -238,6 +244,7 @@ class FirstFragment : Fragment() {
                         }
                     }
                 } catch (ex: IOException) {
+                    Log.i("FirstFrag", ex.message.toString())
                     stopWorker = true
                 }
             }
