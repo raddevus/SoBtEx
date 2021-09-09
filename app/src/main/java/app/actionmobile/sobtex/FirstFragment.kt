@@ -114,6 +114,8 @@ class FirstFragment : Fragment() {
                     sendData()
                 }
                 else{
+                    var thing : String
+                    thing = "${fileNameEdit.text}"
                     var errMsg : String = "Please provide a file name to save your data to.\n"
                     errMsg += "Examples => temperature.txt, sampledata.txt, sample.log"
                     Log.i("FirstFrag",errMsg)
